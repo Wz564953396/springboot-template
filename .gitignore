@@ -12,6 +12,7 @@ target/
 
 ### IntelliJ IDEA ###
 .idea/
+springboot-template.iml
 
 ### NetBeans ###
 /nbproject/private/
