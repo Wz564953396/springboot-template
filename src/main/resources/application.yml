@@ -1,17 +1,17 @@
 server:
   port: 5250
   servlet:
-    context-path: /integrate
+    context-path: /template
 
 # 应用名称
 spring:
   application:
-    name: springboot-integrate
-    datasource:
-      url: jdbc:mysql://101.43.189.54:52/common?serverTimezone=Asia/Shanghai&characterEncoding=UTF-8&useSSL=false
-      username: root
-      password: wz201405001148
-      driverClassName: com.mysql.cj.jdbc.Driver
+    name: springboot-template
+  datasource:
+    url: jdbc:mysql://101.43.189.54:52/common?serverTimezone=Asia/Shanghai&characterEncoding=UTF-8&useSSL=false
+    username: root
+    password: wz201405001148
+    driverClassName: com.mysql.cj.jdbc.Driver
 
 
   redis:

@@ -40,7 +40,7 @@ public class MybatisPlusGenerator {
 //                            .build();
 //                })
                 .strategyConfig(builder -> {
-                    builder.addInclude("cache_interface_config"); // 设置需要生成的表名
+                    builder.addInclude("t_user"); // 设置需要生成的表名
                     builder.entityBuilder().fileOverride();
 //                            .addTablePrefix("t_", "c_"); // 设置过滤表前缀
                 })

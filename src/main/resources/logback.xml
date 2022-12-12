@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration scan="true" scanPeriod="60 seconds">
+	<property name="APP_HOME" value="." />
+	<appender name="STDOUT"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%date %level [%logger{10} : %line] %msg%n</pattern>
+		</encoder>
+	</appender>
+	<appender name="FILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<Append>true</Append>
+		<File>${APP_HOME}/log/service.log</File>
+		<encoder>
+			<pattern>%date %level [%logger{10} : %line] %msg%n</pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>DEBUG</level>
+		</filter>
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!--日志文件输出的文件名 -->
+			<FileNamePattern>${APP_HOME}/log/service.log.%d{yyyy-MM-dd}.log</FileNamePattern>
+			<!--日志文件保留天数 -->
+			<MaxHistory>7</MaxHistory>
+		</rollingPolicy>
+	</appender>
+
+	<root level="INFO">
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="FILE" />
+	</root>
+
+	<logger name="com.example" level="INFO" />
+
+
+	<logger name="org.apache.http" level="ERROR" />
+	<logger name="io.swagger.models" level="ERROR" />
+</configuration>
