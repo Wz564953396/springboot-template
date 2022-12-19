@@ -1,5 +1,6 @@
 package com.wz.example.template.config;
 
+import com.wz.example.template.security.MyAuthenticationFailureHandler;
 import com.wz.example.template.security.MyAuthenticationSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +29,9 @@ public class SecurityConfiguration {
     @Autowired
     private MyAuthenticationSuccessHandler myAuthenticationSuccessHandler;
 
+    @Autowired
+    private MyAuthenticationFailureHandler myAuthenticationFailureHandler;
+
 //    默认是token保存在内存中，手动注入JdbcTokenRepositoryImpl，实现将token保存在数据库中，同时自动建表
     @Bean
     public PersistentTokenRepository persistentTokenRepository() {
@@ -50,7 +54,9 @@ public class SecurityConfiguration {
                 .loginProcessingUrl("/user/login")            //定义登录用户名密码提交的接口路径
                 .defaultSuccessUrl("/index.html")             //登录成功后，默认跳转路径
                 .successHandler(myAuthenticationSuccessHandler)//前后端分离情况下，不需要返回静态资源，采用handler方式返回restful数据
-
+                .failureHandler(myAuthenticationFailureHandler)//前后端分离情况下，返回json格式数据
+                .failureForwardUrl("/login.html")              //登录失败后，转发forward到资源上
+                .failureUrl("login.html")                      //登录失败后，重定向redirect到资源上
 //                设置拒绝访问页面
                 .and().exceptionHandling().accessDeniedPage("/403.html")
 
