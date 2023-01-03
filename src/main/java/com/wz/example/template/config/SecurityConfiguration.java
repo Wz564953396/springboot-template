@@ -1,11 +1,10 @@
 package com.wz.example.template.config;
 
-import com.wz.example.template.security.MyAuthenticationSuccessHandler;
+import com.wz.example.template.security.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpRequest;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,7 +14,6 @@ import org.springframework.security.web.authentication.rememberme.JdbcTokenRepos
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import javax.sql.DataSource;
 
@@ -36,6 +34,15 @@ public class SecurityConfiguration {
     @Autowired
     private MyAuthenticationFailureHandler myAuthenticationFailureHandler;
 
+    @Autowired
+    private MyAccessDeniedHandler myAccessDeniedHandler;
+
+    @Autowired
+    private MyLogoutSuccessHandler myLogoutSuccessHandler;
+
+    @Autowired
+    private MyAuthenticationEntryPointHandler myAuthenticationEntryPointHandler;
+
 //    默认是token保存在内存中，手动注入JdbcTokenRepositoryImpl，实现将token保存在数据库中，同时自动建表
     @Bean
     public PersistentTokenRepository persistentTokenRepository() {
@@ -53,6 +60,10 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http.csrf().disable()                                 //关闭CSRF防护，不知道干嘛用的
+                .httpBasic()
+                .authenticationEntryPoint(myAuthenticationEntryPointHandler)
+
+                .and()
                 .formLogin()                                    //自定义登录页面
                 .loginPage("/login.html")                       //登录页面路径设置
                 .loginProcessingUrl("/user/login")              //定义登录用户名密码提交的接口路径
@@ -65,17 +76,19 @@ public class SecurityConfiguration {
                 .and()
                 .logout()                                       //拿到注销登录的配置对象，注销登录功能默认是开启的
                 .logoutUrl("/user/logout")                      //指定注销登录的url，默认值为"/logout"，请求方式为GET，Security 5.7.2之后，默认GET,POST,PUT,DELETE请求方式都可以
+                .logoutSuccessHandler(myLogoutSuccessHandler)
                 .invalidateHttpSession(true)                    //使当前会话失效，默认为true
                 .clearAuthentication(true)                      //清空当前认证标记，默认为true
                 .logoutSuccessUrl("/login.html")                //注销登录后，跳转到某个url上，默认为"/login?logout"
                 .logoutRequestMatcher(new OrRequestMatcher(
                         new AntPathRequestMatcher("/user/logout", HttpMethod.POST.name()),
-                        new AntPathRequestMatcher("", HttpMethod.GET.name())))
+                        new AntPathRequestMatcher("/user/logout1", HttpMethod.GET.name())))
                                                                 //自定义注销登录的请求路径和请求方式
                 .permitAll()
 
-//                设置拒绝访问页面
+//                设置拒绝访问
                 .and().exceptionHandling().accessDeniedPage("/403.html")
+                .and().exceptionHandling().accessDeniedHandler(myAccessDeniedHandler)
 
 //                设置哪些路径可以直接访问，不需要安全认证
                 .and().authorizeRequests().antMatchers(permitPaths).permitAll()

@@ -16,7 +16,7 @@ public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHand
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        RestResponse restResponse = new RestResponse(200, authentication, "登录成功", null);
+        RestResponse restResponse = new RestResponse(200, authentication.isAuthenticated(), "登录成功", null);
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().print(new ObjectMapper().writeValueAsString(restResponse));
     }
