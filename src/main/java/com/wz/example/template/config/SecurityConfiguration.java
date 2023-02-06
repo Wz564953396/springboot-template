@@ -5,11 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -20,7 +22,9 @@ import javax.sql.DataSource;
 @Configuration
 public class SecurityConfiguration {
 
-    private String[] permitPaths = {"/", "/test/hello", "/user/login", "/login.html"};
+    private String[] permitPaths = {"/user/login", "/login.html"};
+
+    private final String loginProcessingUrl = "/user/login";
 
     @Autowired
     private UserDetailsService userDetailsService;
@@ -43,6 +47,21 @@ public class SecurityConfiguration {
     @Autowired
     private MyAuthenticationEntryPointHandler myAuthenticationEntryPointHandler;
 
+    @Autowired
+    private AuthenticationConfiguration authenticationConfiguration;
+
+    @Bean
+    public MyUsernamePasswordAuthenticationFilter myUsernamePasswordAuthenticationFilter() throws Exception {
+        MyUsernamePasswordAuthenticationFilter filter = new MyUsernamePasswordAuthenticationFilter();
+        filter.setUsernameParameter(filter.SPRING_SECURITY_FORM_USERNAME_KEY);
+        filter.setPasswordParameter(filter.SPRING_SECURITY_FORM_PASSWORD_KEY);
+        filter.setAuthenticationManager(authenticationConfiguration.getAuthenticationManager());
+        filter.setFilterProcessesUrl(loginProcessingUrl);
+        filter.setAuthenticationSuccessHandler(myAuthenticationSuccessHandler);
+        filter.setAuthenticationFailureHandler(myAuthenticationFailureHandler);
+        return filter;
+    }
+
 //    默认是token保存在内存中，手动注入JdbcTokenRepositoryImpl，实现将token保存在数据库中，同时自动建表
     @Bean
     public PersistentTokenRepository persistentTokenRepository() {
@@ -52,7 +71,7 @@ public class SecurityConfiguration {
         return jdbcTokenRepository;
     }
 
-    @Bean
+//    @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
@@ -64,14 +83,15 @@ public class SecurityConfiguration {
                 .authenticationEntryPoint(myAuthenticationEntryPointHandler)
 
                 .and()
+                .addFilterAt(myUsernamePasswordAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .formLogin()                                    //自定义登录页面
-                .loginPage("/login.html")                       //登录页面路径设置
-                .loginProcessingUrl("/user/login")              //定义登录用户名密码提交的接口路径
-                .defaultSuccessUrl("/index.html")               //登录成功后，默认跳转路径
-                .successHandler(myAuthenticationSuccessHandler) //前后端分离情况下，不需要返回静态资源，采用handler方式返回restful数据
+//                .loginPage("/login.html")                       //登录页面路径设置
+//                .loginProcessingUrl(loginProcessingUrl)         //定义登录用户名密码提交的接口路径
+//                .defaultSuccessUrl("/index.html")               //登录成功后，默认跳转路径
+//                .successHandler(myAuthenticationSuccessHandler) //前后端分离情况下，不需要返回静态资源，采用handler方式返回restful数据
 //                .failureForwardUrl("/login.html")               //认证失败后，forward（转发）到
 //                .failureUrl("/login.html")                      //认证失败后，redirect（重定向）到
-                .failureHandler(myAuthenticationFailureHandler) //前后端分离情况下，不需要返回静态资源，认证失败后返回restful数据
+//                .failureHandler(myAuthenticationFailureHandler) //前后端分离情况下，不需要返回静态资源，认证失败后返回restful数据
 
                 .and()
                 .logout()                                       //拿到注销登录的配置对象，注销登录功能默认是开启的

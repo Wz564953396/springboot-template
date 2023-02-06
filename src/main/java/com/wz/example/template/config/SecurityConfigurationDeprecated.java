@@ -3,6 +3,7 @@ package com.wz.example.template.config;
 import com.wz.example.template.security.MyAuthenticationSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -29,6 +30,16 @@ public class SecurityConfigurationDeprecated extends WebSecurityConfigurerAdapte
     @Autowired
     private MyAuthenticationSuccessHandler myAuthenticationSuccessHandler;
 
+//    springboot 对 security 默认配置中，在工厂中默认配置了AuthenticationManager
+//    获取默认配置的
+    @Autowired
+    public void initialize(AuthenticationManagerBuilder builder, DataSource dataSource) throws Exception {
+        builder.jdbcAuthentication().dataSource(dataSource).withUser("dave")
+                .password("secret").roles("USER");
+//      多余的，工厂自动查看容器中是否有userDetailsService，如果有自动装配
+        builder.userDetailsService(userDetailsService);
+    }
+
 //    默认是token保存在内存中，手动注入JdbcTokenRepositoryImpl，实现将token保存在数据库中，同时自动建表
     @Bean
     public PersistentTokenRepository persistentTokenRepository() {
@@ -40,9 +51,13 @@ public class SecurityConfigurationDeprecated extends WebSecurityConfigurerAdapte
 
     /**
      * 自定义身份认证的逻辑
+     * 自定义全局 AuthenticationManager，会覆盖默认的 AuthenticationManager，
+     * 需要手动指定 userDetailsService
+     * 这种方法创建的 AuthenticationManager 为工厂本地成员变量，不存在与ioc容器中，
+     * 如果需要从ioc容器获取，需要重写 authenticationManagerBean 方法进行手动注入
      */
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    protected void configure(AuthenticationManagerBuilder builder) throws Exception {
 //            1.通过配置类，设置死密码
 
 //        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
@@ -50,8 +65,14 @@ public class SecurityConfigurationDeprecated extends WebSecurityConfigurerAdapte
 //        auth.inMemoryAuthentication().withUser("di.zhou").password(password).roles("admin");
 
 //            2.通过配置类，设置userDetailsService
+        builder.userDetailsService(userDetailsService)
+                .passwordEncoder(passwordEncoder());
+    }
 
-        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+    @Override
+    @Bean
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
     }
 
     @Bean

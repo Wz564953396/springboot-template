@@ -8,7 +8,7 @@ import java.util.Collections;
 
 public class MybatisPlusGenerator {
 
-    private static String url = "jdbc:mysql://101.43.189.54:52/common?serverTimezone=Asia/Shanghai&characterEncoding=UTF-8&useSSL=false";
+    private static String url = "jdbc:mysql://101.43.189.54:52/template?serverTimezone=Asia/Shanghai&characterEncoding=UTF-8&useSSL=false";
     private static String username = "root";
     private static String password = "wz201405001148";
 
@@ -40,8 +40,8 @@ public class MybatisPlusGenerator {
 //                            .build();
 //                })
                 .strategyConfig(builder -> {
-                    builder.addInclude("t_user"); // 设置需要生成的表名
-                    builder.entityBuilder().fileOverride();
+                    builder.addInclude("role,user_role,user"); // 设置需要生成的表名
+//                    builder.entityBuilder().fileOverride();
 //                            .addTablePrefix("t_", "c_"); // 设置过滤表前缀
                 })
                 .templateEngine(new FreemarkerTemplateEngine()) // 使用Freemarker引擎模板，默认的是Velocity引擎模板

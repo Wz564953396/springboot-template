@@ -1,6 +1,6 @@
 package com.wz.example.template.mapper;
 
-import com.wz.example.template.entity.TUser;
+import com.wz.example.template.entity.UserRole;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -9,8 +9,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * </p>
  *
  * @author Zz_Wang
- * @since 2022-12-12
+ * @since 2023-01-28
  */
-public interface TUserMapper extends BaseMapper<TUser> {
+public interface UserRoleMapper extends BaseMapper<UserRole> {
 
 }
