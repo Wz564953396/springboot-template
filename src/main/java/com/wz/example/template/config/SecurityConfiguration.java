@@ -85,7 +85,7 @@ public class SecurityConfiguration {
                 .and()
                 .addFilterAt(myUsernamePasswordAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .formLogin()                                    //自定义登录页面
-//                .loginPage("/login.html")                       //登录页面路径设置
+                .loginPage("/login.html")                       //登录页面路径设置
 //                .loginProcessingUrl(loginProcessingUrl)         //定义登录用户名密码提交的接口路径
 //                .defaultSuccessUrl("/index.html")               //登录成功后，默认跳转路径
 //                .successHandler(myAuthenticationSuccessHandler) //前后端分离情况下，不需要返回静态资源，采用handler方式返回restful数据
