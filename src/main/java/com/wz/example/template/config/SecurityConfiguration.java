@@ -22,7 +22,7 @@ import javax.sql.DataSource;
 @Configuration
 public class SecurityConfiguration {
 
-    private String[] permitPaths = {"/user/login", "/login.html"};
+    private String[] permitPaths = {"/user/login", "/login.html", "/test/**"};
 
     private final String loginProcessingUrl = "/user/login";
 
