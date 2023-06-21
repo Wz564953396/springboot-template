@@ -21,7 +21,7 @@ wget https://github.com/zendesk/maxwell/releases/download/v1.29.2/maxwell-1.29.2
 tar zxvf maxwell-1.29.2.tar.gz
 ```
 ```shell
-cd cd maxwell-1.40.2/
+cd cd maxwell-1.29.2/
 ```
 
 ### 2.修改配置文件
