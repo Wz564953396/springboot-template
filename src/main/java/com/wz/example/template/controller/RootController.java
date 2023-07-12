@@ -20,6 +20,8 @@ import javax.servlet.http.HttpSession;
 @Secured("ROLE_root")
 public class RootController {
 
+    private String text = "周笛是个傻子";
+
     @GetMapping("/hello")
     public String hello(ModelAndView modelAndView) {
         modelAndView.addObject("value", "hello root security");
