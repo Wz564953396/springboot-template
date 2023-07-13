@@ -92,8 +92,8 @@ public class Test {
 
 ![img_25.png](img_25.png)
 
->为什么需要常量池？
-为了提供一些符号和常量，便于指令的识别
+> 为什么需要常量池？
+> 为了提供一些符号和常量，便于指令的识别
 
 #### 4. 方法返回地址
 ![img_26.png](img_26.png)
@@ -144,8 +144,8 @@ public class HeapSpaceInitial {
 
 ![img_33.png](img_33.png)
 
->默认情况下，新生代老年代的比例是1:2;
-新生代中Eden区、Survivor1、Survivor2分配的内存比例是8:1:1 //实际上压根不是8:1:1，加上参数```-XX:-UseAdaptiveSizePolicy``` 不适用自适应策略，一样还是不管用
+> 默认情况下，新生代老年代的比例是1:2;
+> 新生代中Eden区、Survivor1、Survivor2分配的内存比例是8:1:1 //实际上压根不是8:1:1，加上参数```-XX:-UseAdaptiveSizePolicy``` 不适用自适应策略，一样还是不管用
 
 >几乎所有的java对象都是在Eden区被new出来的，除非对象大道Eden区放不下
 
@@ -519,7 +519,7 @@ public class HeapSpaceInitial {
 
 #### 2. 什么是JIT编译器（Just In Time Compiler）？
   编译器：就是虚拟机将源代码直接编译成和本地机器平台相关的机器语言
-  
+
 #### 3. 为什么说Java是半编译半解释型语言？
   JDK1.0时代，将Java语言定位为“解释执行”还是比较准确的，再后来Java也发展出可以直接生成本地代码的编译器
   现在JVM在执行Java代码的时候，通常会将解释执行与编译执行二者结合起来进行
@@ -568,4 +568,92 @@ public class HeapSpaceInitial {
 > 另外，可以使用 -xx:CounterHalfLifeTime 参数设置半衰周期的时间，单位是秒。
 
 ##### (2) 回边计数器
+> 它的作用是统计一个方法中循环体代码执行的次数，在字节码中遇到控制流向后跳转的指令称为“回边” (Back Edge)。显然，建立回边计数器统计的目的就是为了触发 OSR 编译。
+![img_55.png](img_55.png)
 
+#### 6. 测试
+```java
+/**
+  -Xint : 6520ms
+  -Xcomp : 950ms
+  -Xmixed : 936ms
+  @author shkstartshkstart@126.com
+  @create 2929 12:49
+*/
+public class IntCompTest {
+    public static void main(string[] args) {
+        long start = System.currentTimeMillis();
+        testPrimeNumber(1000000);
+        long end = Svstem.currentTimeMillis();
+        System.out.println(end - start);
+    }
+
+    public static void testPrimeNumber(int count) {
+        for (int i = 0; i < count; i++) {//计算100以内的质数
+            label:
+            for (int j = 2; j <= 100; j++) {
+                for (int k = 2; k <= Math.sqrt(j); k++) {
+                    if (i % k == 0) {
+                        continue label;
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+#### 7. HotSpot VM中JIT分类
+在HotSpot VM中内嵌有两个JIT编译器，分别为client Compiler和ServerCompiler，但大多数情况下我们简称为C1编译器和C2编译器。开发人员可以通过如下命令显式指定Java虚拟机在运行时到底使用哪一种即时编译器，如下所示:
+- client:指定Java虚拟机运行在client模式下，并使用C1编译器
+  - C1编译器会对字节码进行简单和可靠的优化，耗时短。以达到更快的编译速度
+- server:指定Java虚拟机运行在Server模式下，并使用C2编译器
+  - C2进行耗时较长的优化，以及激进优化。但优化的代码执行效率更高
+
+##### C1和C2编译器不同的优化策略
+- 分层编译 (Tiered Compilation) 策略
+  程序解释执行不开启性能监控)可以触发C1编译，将字节码编译成机器码，可以进行简单优化，也可以加上性能监控，C2编译会根据性能监控信息进行激进优化。
+  不过在Java7版本之后，一旦开发人员在程序中显式指定命令“-server”时，默认将会开启分层编译策略，由C1编译器和C2编译器相互协作共同来执行编译任务。
+
+- C1编译器上主要有方法内联，去虚拟化、几在不同的编译器上有不同的优化策略余消除。
+  - 方法内联:将引用的函数代码编译到引用点处，这样可以减少栈帧的生成，减少参数传递以及跳转过程
+  - 去虚拟化:对唯一的实现类进行内联
+  - 冗余消除:在运行期间把一些不会执行的代码折叠掉
+- C2的优化主要是在全局层面，逃逸分析是优化的基础。基于逃逸分析在C2上有如下几种优化:
+  - 标量替换:用标量值代替聚合对象的属性值Y
+  - 栈上分配:对于未逃逸的对象分配对象在栈而不是堆
+  - 同步消除:清除同步操作，通常指synchronized
+> 自JDK10起，HotSpot又加入一个全新的即时编译器Graal编译器
+> 编译效果短短几年时间就追评了C2编译器，未来可期。
+> 目前，带着“实验状态"标签，需要使用开关参数-XX:+UnlockExperimentalVMOptions -xX:+UseJVMCICompiler去激活，才可以使用。
+
+## 六、String Table
+### （一）String存储结构变更
+> JDK9开始，String 再也不用 char[] 来存储啦，改成了 byte[] 加上编码标记，节约了一些空间。
+> String-related classes such as AbstractStringBuilder, StringBuilder and StringBuffer will be updated to use the same representation, as will theHotSpot VM's intrinsic(固有的、内置的) string operations.
+
+
+> 字符串常量池中是不会存储相同内容的字符串的。
+> string的string Pool是一个固定大小的Hashtable，默认值大小长度是1009。如果放进string Pool的string非常多，就会造成Hash冲突严重，从而导致链表会很长，而链表长了后直接会造成的影响就是当调用String.intern时性能会大幅下降。
+> 使用-xx:StringTableSize可设置StringTable的长度
+> 在jdk6中，stringTable是固定的，就是1009的长度，所以如果常量池中的字符串过多就会导致效率下降很快。stringTableSize设置没有要求
+> 在jdk7中，stringTable的长度默认值是60013
+> 在jdk8中，可设置stringTable的长度最小值为1009
+
+```java
+public class StringTest2 {
+    public static void main(String[] args) {
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new FileReader("words.txt"));
+            long start = System.currentTimeMillis();
+            String data;
+            while ((data = br.readLine())!=null)fdata.intern(); //如果字符串常量池中没有对应data的字符串的话，则在常量池中生成
+            long end = System.currentTimeMillis();
+            System.out.println("花费的时间为:" + (end - start)); //1009:134ms109009:55ms
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
