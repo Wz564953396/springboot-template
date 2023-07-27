@@ -634,6 +634,7 @@ public class IntCompTest {
 ## 六、String Table
 ### （一）String存储结构变更
 > JDK9开始，String 再也不用 char[] 来存储啦，改成了 byte[] 加上编码标记，节约了一些空间。
+> moreover, that most String objects contain only Latin-1 characters. Such characters require only one byte of storage, hence half of the space in the internal char arrays of such String objects is going unused
 > String-related classes such as AbstractStringBuilder, StringBuilder and StringBuffer will be updated to use the same representation, as will theHotSpot VM's intrinsic(固有的、内置的) string operations.
 
 
@@ -652,15 +653,29 @@ public class StringTest2 {
             br = new BufferedReader(new FileReader("words.txt"));
             long start = System.currentTimeMillis();
             String data;
-            while ((data = br.readLine())!=null)fdata.intern(); //如果字符串常量池中没有对应data的字符串的话，则在常量池中生成
+            while ((data = br.readLine())!=null) {
+                data.intern(); //如果字符串常量池中没有对应data的字符串的话，则在常量池中生成
+            }
             long end = System.currentTimeMillis();
-            System.out.println("花费的时间为:" + (end - start)); //1009:134ms109009:55ms
+            System.out.println("花费的时间为:" + (end - start)); //1009:134ms 109009:55ms
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 }
 ```
+
+### （二） String的内存分配
+- 在Java语言中有8种基本数据类型和一种比较特殊的类型string。这些类型为了使它们在运行过程中速度更快、更节省内存，都提供了一种常量池的概念。
+- 常量池就类似一个Java系统级别提供的缓存。8种基本数据类型的常量池都是系统协调的，string类型的常量池比较特殊。它的主要使用方法有两种。
+  - 直接使用双引号声明出来的 String对象会直接存储在常量池中比如: String info ="atguigu.com";
+  - 如果不是用双引号声明的 Strinq对象，可以使用 Strinq 提供的intern()方法。这个后面重点谈
+
+### （三） 字符串拼接操作
+1. 常量与常量的拼接结果在常量池，原理是编译期优化
+2. 常量池中不会存在相同内容的常量。
+3. 只要其中有一个是变量，结果就在堆中。变量拼接的原理是StrinqBuilder
+4. 如果拼接的结果调用intern()方法，则主动将常量池中还没有的字符串对象放入池中，并返回此对象地址。
 
 ### （二） String的内存分配
 
