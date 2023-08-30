@@ -60,16 +60,16 @@ public class AopAspect {
 
     }
 
-    @Before()
-    public Object before() {
-        System.out.println("Aspect before ...");
-        return null;
-    }
-
-    @Around()
-    public Object around() {
-        System.out.println("Aspect around ...");
-        return null;
-    }
+//    @Before()
+//    public Object before() {
+//        System.out.println("Aspect before ...");
+//        return null;
+//    }
+//
+//    @Around()
+//    public Object around() {
+//        System.out.println("Aspect around ...");
+//        return null;
+//    }
 
 }
