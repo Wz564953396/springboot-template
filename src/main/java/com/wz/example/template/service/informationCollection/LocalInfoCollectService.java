@@ -7,6 +7,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.util.StringUtils;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,6 +16,8 @@ public class LocalInfoCollectService {
 
     private static final String folderPath = "C:\\Users\\Administrator\\Desktop\\personal_terminal_information";
 //    private static final String folderPath = "D:";
+
+    private static final String[] titles = {"部门", "姓名", "厂商型号", "电脑序列号", "硬盘序列号", "CPU信息", "物理内存", "硬盘大小", "MAC地址", "资产状态"};
 
 
     public static void main(String[] args) throws IOException {
@@ -32,14 +36,9 @@ public class LocalInfoCollectService {
         cell.setCellValue("电脑摸底情况");
 
         Row row1 = sheet.createRow(1);
-        row1.createCell(0).setCellValue("序号");
-        row1.createCell(1).setCellValue("部门");
-        row1.createCell(2).setCellValue("员工姓名");
-        row1.createCell(3).setCellValue("电脑硬盘序列号");
-        row1.createCell(4).setCellValue("电脑MAC地址");
-        row1.createCell(5).setCellValue("电脑情况");
-        row1.createCell(6).setCellValue("电脑配置");
-        row1.createCell(7).setCellValue("预估购买年限");
+        for (int i = 0; i < titles.length; i++) {
+            row1.createCell(i).setCellValue(titles[i]);
+        }
 
         int row = 2;
         int num = 1;
@@ -50,23 +49,30 @@ public class LocalInfoCollectService {
                 System.out.println("文件名：" + fileName);
                 System.out.println("文件内容：");
 
-                out(file);
+                List<String> content = out(file);
 
                 Row rowOne = sheet.createRow(row++);
                 String department = fileName.split("-")[0];
                 String name = fileName.split("-")[1];
-                rowOne.createCell(0).setCellValue(num++);
-                rowOne.createCell(1).setCellValue(department);
-                rowOne.createCell(2).setCellValue(name);
-                String[] array = getSerialNumberAndSize(file);
-                rowOne.createCell(3).setCellValue(array[0]);
-                rowOne.createCell(4).setCellValue(getMacAddress(file));
+//                rowOne.createCell(0).setCellValue(num++);
+                rowOne.createCell(0).setCellValue(department);
+                rowOne.createCell(1).setCellValue(name);
 
-                StringBuilder computerConfig = new StringBuilder();
-                computerConfig.append("处理器:" + getCPU(file));
-                computerConfig.append("\n内存:" + getMemory(file));
-                computerConfig.append("\n硬盘:" + array[1]);
-                rowOne.createCell(6).setCellValue(computerConfig.toString());
+//                厂商型号和电脑序列号
+                String[] array2 = getComputerSerialNumberAndVersion(content);
+                rowOne.createCell(2).setCellValue(array2[1]);
+                rowOne.createCell(3).setCellValue(array2[0]);
+
+//                硬盘序列号和大小
+                String[] array = getHardDiskSerialNumberAndSize(content);
+                rowOne.createCell(4).setCellValue(array[0]);
+                rowOne.createCell(7).setCellValue(array[1]);
+//                CPU信息
+                rowOne.createCell(5).setCellValue(getCPU(content));
+//                物理内存
+                rowOne.createCell(6).setCellValue(getMemory(content));
+//                MAC地址
+                rowOne.createCell(8).setCellValue(getMacAddress(content));
 
                 System.out.println("--------------------------------------");
             }
@@ -78,52 +84,95 @@ public class LocalInfoCollectService {
 
     }
 
-    private static void out(File file) {
+    private static List<String> out(File file) {
+        List<String> list = new ArrayList<>();
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "GBK"));
             String line;
 
             while ((line = br.readLine()) != null) {
                 System.out.println(line);
+                list.add(line);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return list;
     }
 
-    private static String getMacAddress(File file) {
-        try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "GBK"));
-            String line;
+    private static String[] getComputerSerialNumberAndVersion(List<String> content) {
 
-            boolean isPrepared = false;
-            while ((line = br.readLine()) != null) {
-                if ("无线局域网适配器 WLAN:".equals(line)) {
+        String serialNumber = null;
+        String version = null;
+        boolean isPrepared = false;
+        int index = 0;
+        try {
+            for (String line : content) {
+                line = line.replace("\u0000", "");
+
+                if (!isPrepared && StringUtils.hasLength(line) && line.contains("SerialNumber")
+                        && line.contains("Version")) {
                     isPrepared = true;
+                    index = line.indexOf("Version");
+                    continue;
+                }
+
+                if (isPrepared && StringUtils.hasLength(line)) {
+                    serialNumber = line.substring(0, index).trim();
+                    version = line.substring(index, line.length()).split("-")[0].trim();
+                    System.out.println("serialNumber: " + serialNumber);
+                    System.out.println("version: " + version);
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return new String[]{serialNumber, version};
+    }
+
+    private static String getMacAddress(List<String> content) {
+        StringBuilder sb = new StringBuilder();
+        try {
+            boolean isPrepared = false;
+            String name = null;
+            for (String line : content) {
+                if ("无线局域网适配器 WLAN:".equals(line) || line.contains("无线局域网适配器 本地连接") || line.contains("以太网适配器 以太网")) {
+                    name = line;
+                    isPrepared = true;
+                    continue;
+                }
+                if (isPrepared && line.contains("描述") && line.contains("Virtual")) {
+                    isPrepared = false;
+                    continue;
                 }
                 if (isPrepared && line.contains("物理地址")) {
                     System.out.println("MAC地址: " + line.split(":")[1].trim());
-                    return line.split(":")[1].trim();
+                    sb.append(name + line.split(":")[1].trim() + "\n");
+                    isPrepared = false;
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return sb.toString().trim();
     }
 
-    private static String[] getSerialNumberAndSize(File file) {
+    /**
+     * 硬盘序列号和大小
+     * @param content
+     * @return
+     */
+    private static String[] getHardDiskSerialNumberAndSize(List<String> content) {
         StringBuilder serialNumber = new StringBuilder();
-        long size = 0;
+        StringBuilder size = new StringBuilder();
+        boolean isPrepared = false;
+        int row = 0;
+        int index = 0;
+        int index2 = 0;
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "GBK"));
-            String line;
-
-            boolean isPrepared = false;
-            int row = 0;
-            int index = 0;
-            int index2 = 0;
-            while ((line = br.readLine()) != null) {
+            for (String line : content) {
                 line = line.replace("\u0000", "");
 
                 if (!isPrepared && StringUtils.hasLength(line) && line.contains("Index")
@@ -143,32 +192,27 @@ public class LocalInfoCollectService {
                     if (matcher.find()) {
                         if (Integer.valueOf(matcher.group()).equals(row++)) {
                             serialNumber.append("\n" + line.substring(index).split(" ")[0]);
-                            size = size + Long.valueOf(line.substring(index2).trim());
+                            size.append(Long.valueOf(line.substring(index2).trim()) / 1000000000 + "G\n");
                         }
                     } else {
                         break;
                     }
-
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         System.out.println("serialNumber: " + serialNumber.toString().trim());
-        System.out.println("size: " + size / 1000000000);
-        return new String[]{serialNumber.toString().trim(), (size / 1000000000) + "G"};
+        System.out.println("size: " + size.toString().trim());
+        return new String[]{serialNumber.toString().trim(), size.toString()};
     }
 
-    private static String getCPU(File file) {
+    private static String getCPU(List<String> content) {
         String cpuInfo = null;
-        long size = 0;
+        boolean isPrepared = false;
+        int index = 0;
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "GBK"));
-            String line;
-
-            boolean isPrepared = false;
-            int index = 0;
-            while ((line = br.readLine()) != null) {
+            for (String line : content) {
                 line = line.replace("\u0000", "");
 
                 if (!isPrepared && StringUtils.hasLength(line) && line.contains("Name")
@@ -184,19 +228,16 @@ public class LocalInfoCollectService {
                     return cpuInfo;
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         return null;
     }
 
-    private static String getMemory(File file) {
+    private static String getMemory(List<String> content) {
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "GBK"));
-            String line;
-
-            while ((line = br.readLine()) != null) {
+            for (String line : content) {
                 if (line.contains("物理内存总量:")) {
                     String str = line.split(":")[1].trim();
                     System.out.println("内存: " + str);
@@ -210,7 +251,7 @@ public class LocalInfoCollectService {
                     return Integer.valueOf(sb.toString()) / 1000 + "GB";
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
