@@ -1,30 +1,30 @@
 # jvm学习笔记
 
 ## 一、类的加载
-![1686621492281.png](1686621492281.png)
-![img_9.png](img_9.png)
+![1686621492281.png](src/1686621492281.png)
+![img_9.png](src/img_9.png)
 
-![img.png](img.png)
+![img.png](src/img.png)
 
-![img_1.png](img_1.png)
+![img_1.png](src/img_1.png)
 
-![img_2.png](img_2.png)
+![img_2.png](src/img_2.png)
 
-![img_3.png](img_3.png)
+![img_3.png](src/img_3.png)
 
-![img_5.png](img_5.png)
+![img_5.png](src/img_5.png)
 
-![img_4.png](img_4.png)
+![img_4.png](src/img_4.png)
 
-![img_6.png](img_6.png)
+![img_6.png](src/img_6.png)
 
 #### 双亲委派机制
-![img_7.png](img_7.png)
-![img_8.png](img_8.png)
+![img_7.png](src/img_7.png)
+![img_8.png](src/img_8.png)
 
 ## 二、运行时数据区
 ### <font color='blue'>（一）程序计数器（Program Counter Register）</font>
-![img_10.png](img_10.png)
+![img_10.png](src/img_10.png)
     作用：用来存储只想下一条指令的地址，将要执行的指令代码，有执行引擎读取下一条指令
 
     · 它是一块很小的内存空间，几乎可以忽略不计，也是运行速度最快的存储区域
@@ -49,29 +49,29 @@
 >这样必然导致经常中断或恢复，如何保证分毫无差呢?每个线程在创建后，都会产生自己的程序计数器和栈帧，程序计数器在各个线程之间互不影响。
 
 ### <font color='blue'>（二）java虚拟机栈</font>
-![img_11.png](img_11.png)
+![img_11.png](src/img_11.png)
 
-![img_12.png](img_12.png)
+![img_12.png](src/img_12.png)
 
-![img_13.png](img_13.png)
+![img_13.png](src/img_13.png)
 
-![img_14.png](img_14.png)
+![img_14.png](src/img_14.png)
 
-![img_15.png](img_15.png)
+![img_15.png](src/img_15.png)
 
 #### 1. 局部变量表（local variables）
-![img_16.png](img_16.png)
+![img_16.png](src/img_16.png)
 
-![img_17.png](img_17.png)
+![img_17.png](src/img_17.png)
 
-![img_18.png](img_18.png)
+![img_18.png](src/img_18.png)
 
-![img_19.png](img_19.png)
+![img_19.png](src/img_19.png)
 
 #### 2. 操作数栈/表达式栈（operand stack）
-![img_20.png](img_20.png)
+![img_20.png](src/img_20.png)
 
-![img_21.png](img_21.png)
+![img_21.png](src/img_21.png)
 
 ```java
 public class Test {
@@ -82,33 +82,33 @@ public class Test {
     }
 }
 ```
-![img_22.png](img_22.png)
+![img_22.png](src/img_22.png)
 
 ##### 栈顶缓存技术
-![img_23.png](img_23.png)
+![img_23.png](src/img_23.png)
 
 #### 3. 动态链接
-![img_24.png](img_24.png)
+![img_24.png](src/img_24.png)
 
-![img_25.png](img_25.png)
+![img_25.png](src/img_25.png)
 
 > 为什么需要常量池？
 > 为了提供一些符号和常量，便于指令的识别
 
 #### 4. 方法返回地址
-![img_26.png](img_26.png)
+![img_26.png](src/img_26.png)
 
 ### <font color='blue'>（三）本地方法栈</font>
-![img_27.png](img_27.png)
+![img_27.png](src/img_27.png)
 
-![img_28.png](img_28.png)
+![img_28.png](src/img_28.png)
 
 ### <font color='blue'>（四）堆</font>
-![img_29.png](img_29.png)
+![img_29.png](src/img_29.png)
 
-![img_30.png](img_30.png)
+![img_30.png](src/img_30.png)
 
-![img_31.png](img_31.png)
+![img_31.png](src/img_31.png)
 
 ```java
 public class HeapSpaceInitial {
@@ -140,9 +140,9 @@ public class HeapSpaceInitial {
 > -Xmn:设置新生代的大小。(初始值及最大值)
 > -XX:NewRatio:2 -> 配置新生代与老年代在堆结构的占比
 
-![img_32.png](img_32.png)
+![img_32.png](src/img_32.png)
 
-![img_33.png](img_33.png)
+![img_33.png](src/img_33.png)
 
 > 默认情况下，新生代老年代的比例是1:2;
 > 新生代中Eden区、Survivor1、Survivor2分配的内存比例是8:1:1 //实际上压根不是8:1:1，加上参数```-XX:-UseAdaptiveSizePolicy``` 不适用自适应策略，一样还是不管用
@@ -151,9 +151,9 @@ public class HeapSpaceInitial {
 
 >绝大多数的java对象的销毁都是在新生代进行的    
 
-![img_34.png](img_34.png)
+![img_34.png](src/img_34.png)
 
-![img_35.png](img_35.png)
+![img_35.png](src/img_35.png)
 
 ### （五）垃圾回收（Garbage Collection）
 
@@ -162,7 +162,7 @@ public class HeapSpaceInitial {
 -XX:+PrintGCDetails
 ```
 
-![img_36.png](img_36.png)
+![img_36.png](src/img_36.png)
 
 #### （1） 新生代GC触发机制
 > 当新生代空间不足时，就会触发Minor GC ， 这里的新生代指的是Eden区满，Survivor区满不会触发Minor GC
@@ -216,7 +216,7 @@ public class HeapSpaceInitial {
 > 默认情况下，TLAB空间内存非常小，<font color='red'>仅占整个Eden区的1%</font>，也可以通过```-XX:TLABWasteTargetPercent``` 设置TLAB空间所占Eden空间的百分比大小
 > 一旦对象在tlab空间分配内存失败，JVM就会尝试通过<font color='red'>使用加锁机制</font>确保数据操作的原子性，从而直接在Eden空间中分配内存
 
-![img_37.png](img_37.png)
+![img_37.png](src/img_37.png)
 
 ### （六） 堆空间的常见参数设置
 
@@ -381,13 +381,13 @@ public class HeapSpaceInitial {
 ##### (5) 方法区的演进
 > 2008年，Oracle公司收购EBA JRocket VM 
 > 2014年，JDK8发布
-![img_38.png](img_38.png)
+![img_38.png](src/img_38.png)
 
-![img_50.png](img_50.png)
+![img_50.png](src/img_50.png)
 
-![img_56.png](img_56.png)
+![img_56.png](src/img_56.png)
 
-![img_39.png](img_39.png)
+![img_39.png](src/img_39.png)
 
 > 为永久代设置空间大小是很难确定的
 > 对永久代进行调优是很困难的
@@ -493,7 +493,7 @@ public class HeapSpaceInitial {
 > 不是必须的，占位的作用
 #### 4.
 
-![img_40.png](img_40.png)
+![img_40.png](src/img_40.png)
 
 ## 四、直接内存
 - 不是虚拟机运行时数据区的一部分，也不是《Java虚拟机规范》中定义的内存区域
@@ -504,7 +504,7 @@ public class HeapSpaceInitial {
   - Java的NIO库允许Java程序使用直接内存，用于数据缓存区
 
 ## 五、执行引擎
-![img_41.png](img_41.png)
+![img_41.png](src/img_41.png)
 ### （一）概述
 - 执行引擎是Java虚拟机核心的组成部分之一
 - 虚拟机是相对于物理机而言，这两种机器都有代码执行能力，其区别是物理机的执行引擎是直接建立在处理器、缓存、指令集和操作系统层面上的
@@ -514,9 +514,9 @@ public class HeapSpaceInitial {
 > 那么如果想要让一个Java程序运行起来，执行引擎（Execution Engine）的任务就是<font color='red'>将字节码指令解释/编译为对应平台上的本地机器指令才可以</font>。简单来说，JVM中的执行引擎充当了高级语言翻译为机器语言的译者
 
 
-![img_42.png](img_42.png)
+![img_42.png](src/img_42.png)
 
-![img_43.png](img_43.png)
+![img_43.png](src/img_43.png)
 
 #### 1. 什么是解释器（Interpreter）？
   解释器：当Java虚拟机启动时会根据预定义的规范对字节码采用逐行解释的方式执行，将每条字节码文件中的内容“翻译”为对应平台的本地机器指令执行
@@ -528,17 +528,17 @@ public class HeapSpaceInitial {
   JDK1.0时代，将Java语言定位为“解释执行”还是比较准确的，再后来Java也发展出可以直接生成本地代码的编译器
   现在JVM在执行Java代码的时候，通常会将解释执行与编译执行二者结合起来进行
 
-![img_45.png](img_45.png)
+![img_45.png](src/img_45.png)
 
-![img_44.png](img_44.png)
+![img_44.png](src/img_44.png)
 
-![img_46.png](img_46.png)
+![img_46.png](src/img_46.png)
 
-![img_47.png](img_47.png)
+![img_47.png](src/img_47.png)
 
-![img_51.png](img_51.png)
+![img_51.png](src/img_51.png)
 
-![img_49.png](img_49.png)
+![img_49.png](src/img_49.png)
 
 #### 4. HotSpot VM中已经内置了JIT编译器，为什么还要再使用解释器？
 > 当程序启动后，解释器可以马上发挥作用，省去编译的时间，立即执行编译器要想发挥作用，把代码编译成本地代码，需要一定的执行时间。但编译为本地代码后，执行效率高。
@@ -546,9 +546,9 @@ public class HeapSpaceInitial {
 > 在此模式下，当Java虚拟器启动时，解释器可以首先发挥作用，而不必等待即时编译器全部编译完成后再执行，这样可以省去许多不必要的编译时间。随着时间的推移，编译器发挥作用，把越来越多的代码编译成本地代码，获得更高的执行效率。
 > 解释执行在编译器进行激进优化不成立的时候，作为编译器的“逃生门”
 
-![img_52.png](img_52.png)
+![img_52.png](src/img_52.png)
 
-![img_53.png](img_53.png)
+![img_53.png](src/img_53.png)
 
 #### 5. 热点代码及探测方式
 - 当然是否需要启动 JIT编译器将字节码直接编译为对应平台的本地机器指令则需要根据代码被调用执行的频率而定。
@@ -564,7 +564,7 @@ public class HeapSpaceInitial {
 - 这个值可以通过虚拟机参数-xx:CompileThreshold来人为设定。
 - 当一个方法被调用时，会先检查该方法是否存在被 JIT 编译过的版本，如果存在，则优先使用编译后的本地代码来执行。如果不存在已被编译过的版本，则将此方法的调用计数器值加 1，然后判断方法调用计数器与回边计数器值之和是否超过方法调用计数器的闯值。如果已超过闯值，那么将会向即时编译器提交一个该方法的代码编译请求
 
-![img_54.png](img_54.png)
+![img_54.png](src/img_54.png)
 
 ###### 热度衰减
 > 如果不做任何设置，方法调用计数器统计的并不是方法被调用的绝对次数，而是一个相对的执行频率，即一段时间之内方法被调用的次数。当超过一定的时间限度，如果方法的调用次数仍然不足以让它提交给即时编译器编译，那这个方法的调用计数器就会被减少一半，这个过程称为<font color='red'>方法调用计数器热度的衰减</font>(Counter Decay)，而这段时间就称为此方法统计的<font color='red'>半衰周期</font> (Counter Half Life Time)
@@ -573,7 +573,7 @@ public class HeapSpaceInitial {
 
 ##### (2) 回边计数器
 > 它的作用是统计一个方法中循环体代码执行的次数，在字节码中遇到控制流向后跳转的指令称为“回边” (Back Edge)。显然，建立回边计数器统计的目的就是为了触发 OSR 编译。
-![img_55.png](img_55.png)
+![img_55.png](src/img_55.png)
 
 #### 6. 测试
 ```java
@@ -764,7 +764,7 @@ public class StringTest2 {
   - 它需要单独的字段存储计数器，这样的做法增加了存储空间的开销。
   - 每次赋值都需要更新计数器，伴随着加法和减法操作，这增加了时间开销。
   - 引用计数器有一个严重的问题，即<font color='red'>无法处理循环引用</font>的情况。这是一条致命缺陷,导致在Java的垃圾回收器中没有使用这类算法。
-  ![img_57.png](img_57.png)
+  ![img_57.png](src/img_57.png)
 
 #### 2.标记阶段：可达性分析算法（跟搜索算法、追踪性垃圾收集）
 - 相对于引用计数算法而言，可达性分析算法不仅同样具备实现简单和执行高效等特点，更重要的是该算法可以有效地解决在引用计数算法中循环引用的问题，防止内存泄漏的发生。
@@ -789,7 +789,7 @@ public class StringTest2 {
 - Java虚拟机内部的引用。
   - 基本数据类型对应的class对象，一些常驻的异常对象 (如:NullPointerException、OutOfMemoryError)，系统类加载器
 - 反映java虚拟机内部情况的JMXBean、JVMTI中注册的回调、本地代码缓存等
-![img_58.png](img_58.png)
+![img_58.png](src/img_58.png)
 
 #### 3.对象的finalization机制
 - Java语言提供了对象终止(finalization)机制来允许开发人员提供<font color='blue'>对象被销毁之前的自定义处理逻辑</font>
@@ -851,7 +851,7 @@ public class StringTest2 {
 - 复制算法的高效性是建立在存活对象少、垃圾对象多的前提下的。这种情况在新生代经常发生，但是在老年代，更常见的情况是大部分对象都是存活对象。如果依然使用复制算法由于存活对象较多，复制的成本也将很高。因此，基于老年代垃圾回收的特性，需要使用其他的算法。
 - 标记一清除算法的确可以应用在老年代中，但是该算法不仅执行效率低下，而且在执行完内存回收后还会产生内存碎片，所以JVM 的设计者需要在此基础之上进行改进。标记 -压缩 (Mark - Compact)算法由此诞生。
 - 1970 年前后， G，L。Steele 、C，J，Chene 和D.S.wise 等研究者发布标记压缩算法。在许多现代的垃圾收集器中，人们都使用了标记-压缩算法或其改进版本。
-![img_59.png](img_59.png)
+![img_59.png](src/img_59.png)
 - 标记-压缩算法的最终效果等同于标记-清除算法执行完成后，再进行一次内存碎片整理，因此，也可以把它称为标记-清除-压缩(Mark-Sweep-Compact)算法
 - 二者的本质差异在于标记-清除算法是一种非移动式的回收算法，标记-压缩是移动式的。是否移动回收后的存活对象是一项优缺点并存的风险决策
 - 可以看到，标记的存活对象将会被整理，按照内存地址依次排列，而未被标记的内存会被清理掉。如此一来，当我们需要给新对象分配内存时，JVM只需要持有一个内存的起始地址即可，这比维护一个空闲列表显然少
@@ -864,7 +864,7 @@ public class StringTest2 {
   - 移动对象的同时，如果对象被其他对象引用，则还需要调整引用的地址
   - 移动过程中，需要全程暂停用户应用程序。即:STW
 #### 8.小结
-![img_60.png](img_60.png)
+![img_60.png](src/img_60.png)
 
 #### 9.分代收集算法
 ```markdown
@@ -872,7 +872,7 @@ public class StringTest2 {
 分代收集算法，是基于这样一个事实:不同的对象的生命周期是不一样的。因此，不同生命周期的对象可以采取不同的收集方式，以便提高回收效率。一般是把Java堆分为新生代和老年代，这样就可以根据各个年代的特点使用不同的回收算法，以提高垃圾回收的效率。
 在Java程序运行的过程中，会产生大量的对象，其中有些对象是与业务信息相关，比如Http请求中的session对象、线程、Socket连接，这类对象跟业务直接挂钩，因此生命周期比较长。但是还有一些对象，主要是程序运行过程中生成的临时变量，这些对象生命周期会比较短，比如: string对象，由于其不变类的特性，系统会产生大量的这些对象，有些对象其至只用一次即可回收。
 ```
-![img_61.png](img_61.png)
+![img_61.png](src/img_61.png)
 
 #### 10.增量收集算法、分区算法
 **增量手机算法**
