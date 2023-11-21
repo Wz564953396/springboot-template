@@ -263,6 +263,88 @@ select count(distinct 列名) / count(0) from 表;
 
 ## 二、SQL优化
 
+### （三）性能分析工具
+#### 1.查看系统性能参数
+```sql
+show status;
+```
+- Connections: 连接mysql服务的次数
+- Uptime: MySQL服务器的上线时间
+- Slow_queries: 慢查询的次数
+- Innodb_row_inserted: 执行insert操作插入的行数
+- Innodb_row_updated: 执行update操作更新的行数
+- Innodb_row_deleted: 执行delete操作删除的行数
+- Com_select: 查询操作的次数
+- Com_insert: 插入操作的次数，批量插入只算作1次
+- Com_update: 更新操作的次数
+- Com_delete: 删除操作的次数
+
+#### 2.统计SQL的查询成本
+```sql
+show status like 'last_query_cost';
+```
+
+#### 3.定位执行慢的 SQL：慢查询日志
+```sql
+# 查看是否开启慢SQL日志
+show variables like 'slow_query_log';
+
+# 开启全局慢SQL日志
+set global slow_query_log = on;
+    
+# 查看慢SQL日志存储位置
+show variables like 'slow_query_log_file';
+
+# 查询long_query_time阈值
+show variables like 'long_query_time';
+
+# 修改long_query_time阈值, 全局or会话级别, 最好都改
+set long_query_time = 1;
+set global long_query_time = 1;
+```
+
+```sql
+# 查看慢SQL
+show status like 'slow_queries';
+```
+> 除了上述变量，控制慢查询日志的还有一个系统变量: ```sql show variables like 'min_examined_row_limit'; #默认是0```。这个变量的意思是，查询扫描过的最少记录数。这个变量和查询执行时间，共同组成了判别一个查询是否是慢查询的条件。如果查询扫描过的记录数大于等于这个变量的值，并且查询执行时间超过long_query_time 的值，那么，这个查询就被记录到慢查询日志中;反之，则不被记录到慢查询日志中。
+
+```shell
+cd /var/lib/mysql
+mysqldumpslow -s t -a -t 5 92cdb7d4d0fc-slow.log
+```
+```shell
+mysqladmin -uroot -p flush-logs slow
+```
+
+#### 4.查看SQL执行成本
+```sql
+show variables like 'profiling';
+set profiling = on;
+show profiles;
+show profile cpu, block io for query 83;
+```
+
+#### 5.分析查询语句：explain/describe
+##### 各列的作用
+| 列名             | 描述 |
+|----------------|----|
+| id             | 唯一id |
+| select_type    | SELECT关键字对应的那个查询的类型   |
+| table          | 表名     |
+| partitions     | 匹配的分区信息    |
+| type           | 针对单表的访问方法    |
+| possiable_keys | 可能用到的索引    |
+| key            | 实际上使用的索引    |
+| key_len        | 实际使用到的索引长度    |
+| ref            | 当使用索引列等值查询时，与索引列进行等值匹配的对象信息    |
+| rows           | 预估的需要读取的记录条数    |
+| filtered       | 某个表经过搜索条件过滤后剩余记录条数的百分比    |
+| Extra          | 额外的信息     |
+
+
+
+
 #### 1.哪些维度可以进行数据库调优？
 - 索引失效，没有充分利用索引     ———— 建立索引
 - 关联查询太多JOIN (设计缺陷或不得已的需求) --SQL优化
