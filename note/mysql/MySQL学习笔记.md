@@ -327,23 +327,104 @@ show profile cpu, block io for query 83;
 
 #### 5.分析查询语句：explain/describe
 ##### 各列的作用
-| 列名             | 描述 |
-|----------------|----|
-| id             | 唯一id |
-| select_type    | SELECT关键字对应的那个查询的类型   |
-| table          | 表名     |
-| partitions     | 匹配的分区信息    |
-| type           | 针对单表的访问方法    |
-| possiable_keys | 可能用到的索引    |
-| key            | 实际上使用的索引    |
-| key_len        | 实际使用到的索引长度    |
-| ref            | 当使用索引列等值查询时，与索引列进行等值匹配的对象信息    |
-| rows           | 预估的需要读取的记录条数    |
-| filtered       | 某个表经过搜索条件过滤后剩余记录条数的百分比    |
-| Extra          | 额外的信息     |
+| 列名             | 描述                                                      |
+|----------------|---------------------------------------------------------|
+| id             | 唯一id，<br/>一般情况下，有几个select就有几个不同的id，但有可能查询优化器可能会对涉及子查询的语句进行重写 |
+| select_type    | SELECT关键字对应的那个查询的类型                                     |
+| table          | 表名                                                      |
+| partitions     | 匹配的分区信息                                                 |
+| type           | 针对单表的访问方法                                               |
+| possiable_keys | 可能用到的索引                                                 |
+| key            | 实际上使用的索引                                                |
+| key_len        | 实际使用到的索引长度                                              |
+| ref            | 当使用索引列等值查询时，与索引列进行等值匹配的对象信息                             |
+| rows           | 预估的需要读取的记录条数                                            |
+| filtered       | 某个表经过搜索条件过滤后剩余记录条数的百分比                                  |
+| Extra          | 额外的信息                                                   |
 
+##### (1) id
+- id如果相同，可以认为是一组，从上往下顺序执行
+- 在所有组中，id值越大，优先级越高，越先执行
+- id每个号码，都代表一趟独立的查询，一个sql查询趟数越少越好
 
+##### (2) select_type
+- SIMPLE
+- PRIMARY
+- UNION
+- UNION RESULT
+- SUBQUERY
+- DEPENDENT SUBQUERY
+- DEPENDENT UNION
+- DERIVED
+- MATERIALIZED
+- UNCACHEABLE SUBQUERY
+- UNCHANGEABLE UNION
 
+##### (3) type
+- `system`: 当表中只有一条记录，且该表使用的存储引擎是MyISAM或者MEMORY，那么对该表的访问方法就是`system`
+- `const`: 当根据主键或者唯一索引或者常数进行等值匹配时，对单表的访问方法就是`const`
+- `eq_ref`: 如果被驱动表是通过主键或者唯一二级索引列等值匹配的方式进行访问的（如果主键或者唯一二级索引是联合索引，所有索引列都必须进行等值比较），则对该被驱动表的访问方法就是`eq_ref`
+- `ref`: 普通二级索引列与常量进行等值匹配来查询时，那么对该表的访问方法可能是`ref`。注意数据类型！一旦字段发生隐式转换，索引失效，即访问方法改为`ALL`
+- `ref_or_null`: 普通二级索引进行等值查询，且该索引列的值可以为null时，那么对该表的访问方法可能是`ref_or_null`
+- `index_merge`: 单表访问方法在某些场景下可以使用`Intersection`、`Union`、`Sort_Union`这三种索引合并的方式来执行查询
+ ```sql 
+explain select * from s1 where key1 = 'a' or key2 = 'b' 
+```
+- `unique_subquery`: 
+- `range`: 如果使用索引获取某些范围区间的记录，那么。。
+- `index`
+- `ALL`
+
+```
+小结：
+结果值从最好到最坏依次是:
+  system > const > eq_ref> ref
+ > fulltext > ref_or_null > index_merge > unique_subquery > index_subquery
+ > range > index > ALL
+SQL 性能优化的目标: 至少要达到 range 级别，要求是 ref级别，最好是 consts级别。 (阿里巴巴开发手册要求)
+```
+
+##### (12) Extra
+No table used
+
+#### 6.分析优化器执行计划：trace
+
+#### 7.MySQL监控分析视图：sys.schema
+索引情况：
+```sql
+#1. 查询冗余索引
+select * from sys.schema_redundant_indexes;
+#2. 查询未使用过的索引
+select * from sys.schema_unused_indexes;
+#3. 查询索引的使用情况
+select index_name,rows_selected,rows_inserted,rows_updated,rows_deleted
+from sys.schema_index_statistics where table_schema='dbname' ;
+```
+表相关：
+```sql
+# 1. 查询表的访问量
+select table_schema,table_name,sum(io_read_requests+io_write_requests) as io from
+sys.schema_table_statistics group by table_schema,table_name order by io desc;
+# 2. 查询占用bufferpool较多的表
+select object_schema,object_name,allocated,data
+from sys.innodb_buffer_stats_by_table order by allocated limit 10;
+# 3. 查看表的全表扫描情况
+select * from sys.statements_with_full_table_scans where db='dbname';
+```
+
+语句相关：
+```sql
+#1. 监控SQL执行的频率
+select db,exec_count,query from sys.statement_analysis
+order by exec_count desc;
+#2. 监控使用了排序的SQL
+select db,exec_count,first_seen,last_seen,query
+from sys.statements_with_sorting limit 1;
+#3. 监控使用了临时表或者磁盘临时表的SQL
+select db,exec_count,tmp_tables,tmp_disk_tables,query
+from sys.statement_analysis where tmp_tables>0 or tmp_disk_tables >0
+order by (tmp_tables+tmp_disk_tables) desc;
+```
 
 #### 1.哪些维度可以进行数据库调优？
 - 索引失效，没有充分利用索引     ———— 建立索引
