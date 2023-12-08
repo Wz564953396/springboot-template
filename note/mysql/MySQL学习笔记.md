@@ -71,7 +71,7 @@ show VARIABLES like '%buffer_pool%'
 
 #### 4.多个Buffer Pool实例
 Buffer Pool本质是InnoDB向操作系统申请的一块 连续的内存空间，在多线程环境下，访问Bufer Pool中的数据都票要加锁处理。在Buffer Pool特别大而且多线程并发访问特别高的情况下，单一的Buffer Pool可能会影响请求的处理速度。所以在Buffer Pool特别大的时候，我们可以把它们拆分成若千个小的Buffer Pool，每个Buffer Pool都称为一个实例，它们都是独立的，独立的去申请内存空间，独立的管理各种链表。所以在多线程并发访问时并不会相互影响，从而提高并发处理能力。
-我们可以在服务器启动的时候通过设置 innodb_buffer-pool_instances 的值来修改Buffer Pool实例的个数比方说这样:
+我们可以在服务器启动的时候通过设置 innodb_buffer_pool_instances 的值来修改Buffer Pool实例的个数比方说这样:
 ```properties
 [server]
 innodb_buffer_pool_instance = 2
@@ -325,6 +325,11 @@ show profiles;
 show profile cpu, block io for query 83;
 ```
 
+```sql
+#不使用条件下推
+select /*+ no_ipc field */ * from t where ...;
+```
+
 #### 5.分析查询语句：explain/describe
 ##### 各列的作用
 | 列名             | 描述                                                      |
@@ -386,6 +391,7 @@ SQL 性能优化的目标: 至少要达到 range 级别，要求是 ref级别，
 
 ##### (12) Extra
 No table used
+Using Index condition -> 索引下推
 
 #### 6.分析优化器执行计划：trace
 
@@ -425,6 +431,31 @@ select db,exec_count,tmp_tables,tmp_disk_tables,query
 from sys.statement_analysis where tmp_tables>0 or tmp_disk_tables >0
 order by (tmp_tables+tmp_disk_tables) desc;
 ```
+
+
+#### 索引失效的案例
+- 
+
+#### 覆盖索引
+
+#### 索引下推
+走索引的查询，先不着急回表，先过滤其他条件，然后再回表，减少回表随机IO
+
+```sql
+#关闭索引条件下推
+set optimizer_switch = 'index_condition_pushdown = off';
+
+
+```
+
+
+## 数据库设计规范
+
+### 1.第一范式
+第一范式主要是确保表中每个字段的值必须具有原子性，即 每个字段的值不可再拆分
+
+### 2.第二范式
+满足第一范式的基础上，满足，数据表中的每条记录，都是可唯一标识的，而且所有非主键字段，都必须完全依赖主键字段，不能只依赖主键的一部分。
 
 #### 1.哪些维度可以进行数据库调优？
 - 索引失效，没有充分利用索引     ———— 建立索引
