@@ -11,7 +11,7 @@ public class BinarySearch {
 
     private int binarySearch(int[] array, int target) {
 
-
+        return 0;
     }
 
 }
