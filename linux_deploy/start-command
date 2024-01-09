@@ -10,7 +10,14 @@ docker run --name redis-wang -p 6379:6379 -v /usr/local/redis:/usr/local/redis -
 docker run -d --name rabbitmq-wang -p 5672:5672 -p 15672:15672 rabbitmq:management
 docker run -d --name elasticsearch-wang -p 9300:9300 -p 9200:9200 -v /usr/local/elasticsearch/:/usr/local/elasticsearch/ -e "discovery.type=single-node" elasticsearch:7.16.3
 
+#重启所有的容器
 docker restart $(docker ps -a -q)
+
+#自动重启所有的容器
+docker update $(docker ps -a -q) --restart=always
+
+#连接redis控制台命令
+docker exec -it ddeff40ee035 redis-cli
 
 
 # redis持久化配置，//usr/local/redis
@@ -19,3 +26,9 @@ docker restart $(docker ps -a -q)
 # 内网穿透软件，/usr/local/frp/
 wget https://github.com/fatedier/frp/releases/download/v0.48.0/frp_0.48.0_linux_amd64.tar.gz
 nohup ./frps -c frps.ini >/dev/null 2>&1 &
+
+
+--------------------------VirtualBox--------------------------
+
+docker run -itd --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=wz201405001148 mysql
+docker run --name redis -p 6379:6379 -v /usr/local/redis:/usr/local/redis
