@@ -833,12 +833,14 @@ Innodb_row_lock_waits	285       # 锁等待的次数
 
 ## 九、多版本并发控制——MVCC
 ### （一）什么是MVCC
-MVCC (Multiversion Concurrency Contro) ，多版本并发控制。顾名思义，MVCC 是通过数据行的多个版本管理来实现数据库的 并发控制。这项技术使得在InnoDB的事务隔离级别下执行`一致性读`操作有了保证。
+MVCC (Multiversion Concurrency Control) ，多版本并发控制。顾名思义，MVCC 是通过数据行的多个版本管理来实现数据库的 并发控制。这项技术使得在InnoDB的事务隔离级别下执行`一致性读`操作有了保证。
 换言之，就是为了查询一些正在被另一个事务更新的行，并且可以看到它们被更新之前的值，这样在做查询的时候就不用等待另一个事务释放锁。
 MVCC 没有正式的标准，在不同的 DBMS 中 MVCC 的实现方式可能是不同的，也不是普遍使用的(大家可以参考相关的 DBMS 文档)。这里讲解 nnoDB 中 MVCC 的实现机制 (MySQL其它的存储引擎并不支持它)。
+
 ### （二）快照读与当前读
 MVCC在MySQL InnoDB中的实现主要是为了提高数据库并发性能，用更好的方式去处理`读-写`冲突，做到即使有读写冲突时，也能做到`不加锁`，`非阻塞并发读`，而这个读指的就是`快照读`，而非`当前读`。
 当前读实际上是一种加锁的操作，是悲观锁的实现。而MVCC本质是采用`乐观锁`思想的一种方式
+
 #### 1.快照读
 快照读又叫`一致性读`，读取的是快照数据。不加锁的简单的 SELECT 都属于快照读，即不加锁的非阻塞读;比如这样:
 SELECT * FROM player WHERE ...
@@ -852,7 +854,7 @@ SELECT * FROM player WHERE ...
 > MVCC 的实现依赖于: 隐藏字段、Undo Log、Read View。
 
 #### 1.什么是ReadView
-在 MVCC 机制中，多个事务对同一个行记录进行更新会产生多个历史快照，这些历史快照保存在 Undo Log 里。如果一个事务想要查询这个行记录，需要读取哪个版本的行记录呢?这时就需要用到 ReadView 了，它帮我们解决了行的可见性问题。
+MVCC是MySQL中实现快照读和当前读的核心机制。在 MVCC 机制中，多个事务对同一个行记录进行更新会产生多个历史快照，这些历史快照保存在 Undo Log 里。如果一个事务想要查询这个行记录，需要读取哪个版本的行记录呢?这时就需要用到 ReadView 了，它帮我们解决了行的可见性问题。
 ReadView 就是事务在使用MVCC机制进行快照读操作时产生的读视图。当事务启动时，会生成数据库系统当前的一个快照，InnoDB 为每个事务构造了一个数组，用来记录并维护系统当前 活跃事务 的ID(“活跃”指的就是，启动了但还没提交)。
 
 #### 2.设计思路
@@ -921,3 +923,28 @@ set global general_log_file = '/data1/database/mysql/dev43.log';
 mysqladmin -uroot flush-logs;
 ```
 
+#### 3.错误日志（error log）
+
+#### 3.1 启动日志
+在MySQL数据库中，错误日志功能是`默认开启`的。而且，错误日志无法被禁止
+默认情况下，错误日志存储在MySQL数据库的数据文件夹下，名称默认为 mysqld.log (Linux系统)或hostname.err (mac系统)。如果需要制定文件名，则需要在my.cnf或者my.ini中做如下配置:
+```
+[mysqld]
+log-error=[path/[filename]] #path为目志文件所在的目录路径，filename为日志文件名
+```
+
+##### 3.2 查看日志
+```sql
+show variables like 'log_error%';
+```
+
+补充操作:
+```sql
+install -omysql -gmysql -m0644 /dev/null /var/log/mysqld.log
+```
+flush-logs 指令操作:
+- MySQL 5.5.7以前的版本，flush-logs将错误日志文件重命名为filename.err_old，并创建新的日志文件。
+- 从MysQL 5.5.7开始，flush-logs只是重新打开日志文件，并不做日志备份和创建的操作。
+如果日志文件不存在，MySOL启动或者执行flush-logs时会自动创建新的日志文件。重新创建错误日志，大小为0字节。
+
+#### 4.二进制日志（bin log）
