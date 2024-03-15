@@ -6,10 +6,12 @@ public class HashMapDemo {
 
     public static void main(String[] args) {
         int i = 0;
-        HashMap<String, Object> map = new HashMap<>();
+        HashMap<Integer, Integer> map = new HashMap<>();
 
         while (true) {
-            map.put(String.valueOf(i), i);
+            System.out.println(i);
+            map.put(i & 16, i);
+            i++;
         }
     }
 

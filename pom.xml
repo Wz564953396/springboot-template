@@ -56,7 +56,7 @@
             <version>3.5.2</version>
         </dependency>
 
-        <!--添加数据库驱动安装包-->
+        <!--添加达梦数据库驱动安装包-->
         <dependency>
             <groupId>com.dameng</groupId>
             <artifactId>DmJdbcDriver18</artifactId>
@@ -74,6 +74,13 @@
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
             <version>5.2.3</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.redisson/redisson-spring-boot-starter -->
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson-spring-boot-starter</artifactId>
+            <version>3.18.0</version>
         </dependency>
 
 

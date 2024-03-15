@@ -32,3 +32,8 @@ nohup ./frps -c frps.ini >/dev/null 2>&1 &
 
 docker run -itd --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=wz201405001148 mysql
 docker run --name redis -p 6379:6379 -v /usr/local/redis:/usr/local/redis
+
+
+# kafka eagle
+vim conf/system-config.properties
+./bin/ke.sh start
