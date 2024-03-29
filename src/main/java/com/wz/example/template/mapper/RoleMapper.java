@@ -1,6 +1,6 @@
 package com.wz.example.template.mapper;
 
-import com.wz.example.template.entity.Role;
+import com.wz.example.template.model.entity.Role;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**

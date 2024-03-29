@@ -83,6 +83,20 @@
             <version>3.18.0</version>
         </dependency>
 
+        <!-- Jsoup Java HTML Parser -->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.17.2</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/io.netty/netty-all -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.1.82.Final</version>
+        </dependency>
+
 
         <dependency>
             <groupId>org.freemarker</groupId>

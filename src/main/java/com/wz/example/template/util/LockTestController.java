@@ -1,6 +1,6 @@
 package com.wz.example.template.util;
 
-import com.wz.example.template.resposne.RestResponse;
+import com.wz.example.template.model.resposne.RestResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

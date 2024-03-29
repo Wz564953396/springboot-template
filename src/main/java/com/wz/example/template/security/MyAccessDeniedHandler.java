@@ -1,7 +1,7 @@
 package com.wz.example.template.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wz.example.template.resposne.RestResponse;
+import com.wz.example.template.model.resposne.RestResponse;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;

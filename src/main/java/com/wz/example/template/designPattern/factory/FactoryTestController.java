@@ -5,7 +5,7 @@ import com.wz.example.template.designPattern.factory.dto.BrandDTO;
 import com.wz.example.template.designPattern.factory.dto.FruitDTO;
 import com.wz.example.template.designPattern.factory.factoryMethod.FactoryMethodFactory;
 import com.wz.example.template.designPattern.factory.simpleFactory.SimpleFactory;
-import com.wz.example.template.resposne.RestResponse;
+import com.wz.example.template.model.resposne.RestResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
