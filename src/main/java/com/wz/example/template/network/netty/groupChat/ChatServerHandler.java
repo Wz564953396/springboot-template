@@ -2,12 +2,23 @@ package com.wz.example.template.network.netty.groupChat;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.group.DefaultChannelGroup;
+import io.netty.util.concurrent.GlobalEventExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ChatServerHandler extends SimpleChannelInboundHandler<String> {
 
     private static Logger logger = LoggerFactory.getLogger(ChatServerHandler.class);
+
+    private static ChannelGroup channelGroup = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+
+    @Override
+    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+        channelGroup.writeAndFlush(ChatFormatUtil.write(ctx.channel().remoteAddress().toString(), "客户端加入聊天"));
+        channelGroup.add(ctx.channel());
+    }
 
     /**
      * 进入通道时，即用户建立连接时

@@ -17,6 +17,11 @@ public class GroupChatServer {
 
     private static final int SERVER_PORT = 5000;
 
+    public static void main(String[] args) throws InterruptedException {
+        GroupChatServer server = new GroupChatServer();
+        server.run();
+    }
+
     
     public void run() throws InterruptedException {
         NioEventLoopGroup bossGroup = new NioEventLoopGroup();
