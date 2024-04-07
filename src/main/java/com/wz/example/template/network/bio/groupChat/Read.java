@@ -1,4 +1,4 @@
-package com.wz.example.template.network.netty.groupChat.base;
+package com.wz.example.template.network.bio.groupChat;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

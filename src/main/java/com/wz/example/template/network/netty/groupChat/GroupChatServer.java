@@ -4,6 +4,7 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
@@ -17,8 +18,14 @@ public class GroupChatServer {
 
     private static final int SERVER_PORT = 5000;
 
+    private int port;
+
+    public GroupChatServer(int port) {
+        this.port = port;
+    }
+
     public static void main(String[] args) throws InterruptedException {
-        GroupChatServer server = new GroupChatServer();
+        GroupChatServer server = new GroupChatServer(SERVER_PORT);
         server.run();
     }
 
