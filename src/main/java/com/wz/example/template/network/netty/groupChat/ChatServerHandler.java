@@ -26,9 +26,10 @@ public class ChatServerHandler extends SimpleChannelInboundHandler<String> {
      */
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+        logger.info(ChatFormatUtil.write(ctx.channel().remoteAddress().toString(), "ChatServerHandler.handlerAdded()"));
         channelGroup.add(ctx.channel());
 //        向channelGroup中所有的channel写入数据，不需要自己遍历
-        channelGroup.writeAndFlush(ChatFormatUtil.write(ctx.channel().remoteAddress().toString(), "客户端加入聊天"));
+        channelGroup.writeAndFlush(String.format("客户端[%s]加入聊天", ctx.channel().remoteAddress()));
     }
 
     /**
@@ -38,21 +39,22 @@ public class ChatServerHandler extends SimpleChannelInboundHandler<String> {
      */
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+        logger.info(ChatFormatUtil.write(ctx.channel().remoteAddress().toString(), "ChatServerHandler.handlerRemoved()"));
 //        不需要手动remove，触发该方法之前已经执行过remove了
 //        channelGroup.remove(ctx.channel());
-        channelGroup.writeAndFlush(ChatFormatUtil.write(ctx.channel().remoteAddress().toString(), "客户端离开聊天"));
+        channelGroup.writeAndFlush(String.format("客户端离开聊天", ctx.channel().remoteAddress()));
     }
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
         super.channelRegistered(ctx);
-        System.out.println(ChatFormatUtil.write(ctx.channel().remoteAddress().toString(), "channelRegistered"));
+        logger.info(ChatFormatUtil.write(ctx.channel().remoteAddress().toString(), "ChatServerHandler.channelRegistered()"));
     }
 
     @Override
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
         super.channelUnregistered(ctx);
-        System.out.println(ChatFormatUtil.write(ctx.channel().remoteAddress().toString(), "channelUnregistered"));
+        logger.info(ChatFormatUtil.write(ctx.channel().remoteAddress().toString(), "ChatServerHandler.channelUnregistered()"));
     }
 
     /**
@@ -74,7 +76,7 @@ public class ChatServerHandler extends SimpleChannelInboundHandler<String> {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 
-        logger.info(String.format("用户【%s】下限", ctx.channel().remoteAddress()));
+        logger.info(String.format("用户【%s】下线", ctx.channel().remoteAddress()));
     }
 
     @Override
@@ -82,7 +84,7 @@ public class ChatServerHandler extends SimpleChannelInboundHandler<String> {
         Channel channel = ctx.channel();
         channelGroup.forEach(item -> {
             if (channel != item) {
-                item.writeAndFlush(ChatFormatUtil.write(channel.remoteAddress().toString(), msg));
+                item.writeAndFlush(msg);
             }
         });
     }

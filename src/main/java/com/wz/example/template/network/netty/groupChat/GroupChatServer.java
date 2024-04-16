@@ -3,20 +3,12 @@ package com.wz.example.template.network.netty.groupChat;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
-import java.net.Socket;
-import java.util.concurrent.ConcurrentHashMap;
-
 public class GroupChatServer {
-
-    public static ConcurrentHashMap<String, ChannelHandler> clients = new ConcurrentHashMap();
-
-    private static final int SERVER_PORT = 5000;
 
     private int port;
 
@@ -25,7 +17,7 @@ public class GroupChatServer {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        GroupChatServer server = new GroupChatServer(SERVER_PORT);
+        GroupChatServer server = new GroupChatServer(5000);
         server.run();
     }
 
@@ -37,6 +29,7 @@ public class GroupChatServer {
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
             ChannelFuture cf = bootstrap.group(bossGroup, workerGroup)
+                    .channel(NioServerSocketChannel.class)
                     .option(ChannelOption.SO_BACKLOG, 1024)
                     .childOption(ChannelOption.SO_KEEPALIVE, true)
                     .childHandler(new ChannelInitializer<NioSocketChannel>() {
@@ -48,7 +41,7 @@ public class GroupChatServer {
                             pipeline.addLast(new ChatServerHandler());
                         }
                     })
-                    .bind(SERVER_PORT).sync();
+                    .bind(port).sync();
 
             cf.channel().closeFuture().sync();
 
